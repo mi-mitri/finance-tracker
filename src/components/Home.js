@@ -5,7 +5,6 @@ const Home = () => {
     const [companies, setCompanies] = useState([]);
 
     useEffect(() => {
-        // Fetch total balance and companies from API
         fetch('http://localhost:3000/api/total-balance')
             .then(response => response.json())
             .then(data => setTotalBalance(data.totalBalance))
@@ -15,21 +14,20 @@ const Home = () => {
             .then(response => response.json())
             .then(data => setCompanies(data))
             .catch(err => console.error('Error fetching companies:', err));
-    }, []);
+        }, []);
+        
+        return (
+            <div>
+                <h1>Главная</h1>
+                <h2>Общий баланс: {totalBalance} руб.</h2>
+                <h3>Компании</h3>
+                <ul>
+                    {companies.map(company => (
+                        <li key={company.id}>{company.name}: {company.balance} руб.</li>
+                    ))}
+                </ul>
+            </div>
+        );
+    };
 
-    return (
-        <div>
-            <h1>Главная</h1>
-            <h2>Общий баланс: {totalBalance} руб.</h2>
-            <h3>Компании</h3>
-            <ul>
-                {companies.map(company => (
-                    <li key={company.id}>{company.name}: {company.balance} руб.</li>
-                ))}
-            </ul>
-        </div>
-    );
-};
-
-export default Home;
-
+    export default Home;

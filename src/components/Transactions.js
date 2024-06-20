@@ -4,7 +4,6 @@ const Transactions = () => {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
-        // Fetch transactions from API
         fetch('http://localhost:3000/api/transactions')
             .then(response => response.json())
             .then(data => setTransactions(data))
@@ -27,3 +26,4 @@ const Transactions = () => {
 };
 
 export default Transactions;
+

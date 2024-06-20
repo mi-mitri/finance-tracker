@@ -4,7 +4,6 @@ const Contractors = () => {
     const [contractors, setContractors] = useState([]);
 
     useEffect(() => {
-        // Fetch contractors from API
         fetch('http://localhost:3000/api/contractors')
             .then(response => response.json())
             .then(data => setContractors(data))
@@ -24,4 +23,3 @@ const Contractors = () => {
 };
 
 export default Contractors;
-
