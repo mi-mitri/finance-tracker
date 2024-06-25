@@ -9,7 +9,9 @@ const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, c
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        setFormData(initialData || { name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
+        if (initialData) {
+            setFormData(initialData);
+        }
     }, [initialData]);
 
     const handleInputChange = (e) => {
@@ -147,3 +149,4 @@ const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, c
 };
 
 export default CompanyFormModal;
+

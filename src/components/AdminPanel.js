@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Tabs, Tab, Box, Button, Typography, Modal, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import CompanyFormModal from './CompanyFormModal';
@@ -23,7 +23,7 @@ const AdminPanel = () => {
     const [companies, setCompanies] = useState([]);
     const [accounts, setAccounts] = useState([]);
 
-    const tables = ['companies', 'projects', 'contractors', 'banks', 'currencies', 'account', 'transactions'];
+    const tables = useMemo(() => ['companies', 'projects', 'contractors', 'banks', 'currencies', 'account', 'transactions'], []);
 
     const fetchData = useCallback(() => {
         fetch(`http://localhost:3000/api/${tables[tabIndex]}`)

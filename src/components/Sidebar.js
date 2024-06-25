@@ -1,48 +1,52 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { List, ListItem, ListItemText, Button } from '@mui/material';
-import styles from './styles/Sidebar.module.scss'; // Проверьте путь к файлу стилей
+import { Link } from 'react-router-dom';
+import { List, ListItem, ListItemText, Drawer, IconButton } from '@mui/material';
+import { Menu as MenuIcon, ChevronLeft as ChevronLeftIcon } from '@mui/icons-material';
+import clsx from 'clsx';
+import styles from './styles/Sidebar.module.scss';
 
-const Sidebar = () => {
-    const handleDeleteAll = () => {
-        fetch('http://localhost:3000/api/delete-all', {
-            method: 'DELETE',
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Все записи удалены из базы данных');
-            } else {
-                alert('Произошла ошибка при удалении записей');
-            }
-        })
-        .catch(err => {
-            console.error('Error deleting all records:', err);
-            alert('Произошла ошибка при удалении записей');
-        });
-    };
-
+const Sidebar = ({ open, handleDrawerOpen, handleDrawerClose }) => {
     return (
-        <div className={styles.sidebar}>
+        <Drawer
+            variant="permanent"
+            className={clsx({
+                [styles.drawerPaper]: open,
+                [styles.drawerPaperClose]: !open,
+            })}
+            classes={{
+                paper: clsx({
+                    [styles.drawerPaper]: open,
+                    [styles.drawerPaperClose]: !open,
+                }),
+            }}
+            open={open}
+        >
+            <div className={styles.drawerHeader}>
+                <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
+                    {open ? <ChevronLeftIcon /> : <MenuIcon />}
+                </IconButton>
+            </div>
             <List>
-                <ListItem button component={NavLink} to="/home">
+                <ListItem button component={Link} to="/">
                     <ListItemText primary="Главная" />
                 </ListItem>
-                <ListItem button component={NavLink} to="/companies">
+                <ListItem button component={Link} to="/companies">
                     <ListItemText primary="Компании" />
                 </ListItem>
-                <ListItem button component={NavLink} to="/admin">
+                <ListItem button component={Link} to="/transactions">
+                    <ListItemText primary="Операции" />
+                </ListItem>
+                <ListItem button component={Link} to="/contractors">
+                    <ListItemText primary="Контрагенты" />
+                </ListItem>
+                <ListItem button component={Link} to="/admin">
                     <ListItemText primary="Панель администратора" />
                 </ListItem>
-                {/* Add more links as needed */}
             </List>
-            <div className={styles.buttonContainer}>
-                <Button variant="contained" color="secondary" onClick={handleDeleteAll}>
-                    Удалить все записи в базе данных
-                </Button>
-            </div>
-        </div>
+        </Drawer>
     );
 };
 
 export default Sidebar;
+
+

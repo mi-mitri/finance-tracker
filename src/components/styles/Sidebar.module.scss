@@ -1,9 +1,17 @@
-.sidebar {
-    // Ваши стили для сайдбара
-    padding-top: 5px;
-  }
-  
-  .buttonContainer {
-    margin-top: 20px;
-  }
-  
+.drawerPaper {
+  width: 200px; /* Уменьшено до 200px */
+  transition: width 0.3s;
+}
+
+.drawerPaperClose {
+  overflow-x: hidden;
+  width: 64px;
+  transition: width 0.3s;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  justify-content: flex-end;
+}
