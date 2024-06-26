@@ -6,6 +6,7 @@ import BankFormModal from './BankFormModal';
 import CurrencyFormModal from './CurrencyFormModal';
 import ContractorFormModal from './ContractorFormModal';
 import TransactionFormModal from './TransactionFormModal';
+import ProjectFormModal from './ProjectFormModal';
 import styles from './styles/AdminPanel.module.scss';
 import modalStyles from './styles/Modal.module.scss';
 
@@ -84,7 +85,7 @@ const AdminPanel = () => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => {
         setOpen(false);
-        setFormData({ name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
+        setFormData({ name: '', description: '', companyId: '' });
         setIsEdit(false);
         setEditId(null);
     };
@@ -95,8 +96,8 @@ const AdminPanel = () => {
             const data = await response.json();
             setFormData({
                 name: data.name,
-                email: data.email,
-                phone: data.phone,
+                description: data.description,
+                companyId: data.company_id,
                 accounts: data.accounts ? data.accounts.map(account => ({
                     bankId: account.bank_id,
                     currencyId: account.currency_id,
@@ -214,6 +215,16 @@ const AdminPanel = () => {
                     isEdit={isEdit}
                 />
             )}
+            {tabIndex === 1 && (
+                <ProjectFormModal
+                    open={open}
+                    handleClose={handleClose}
+                    handleSave={handleSave}
+                    initialData={isEdit ? formData : { name: '', description: '', companyId: '' }}
+                    companies={companies}
+                    isEdit={isEdit}
+                />
+            )}
             {tabIndex === 2 && (
                 <ContractorFormModal
                     open={open}
@@ -271,6 +282,7 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
+
 
 
 
@@ -367,17 +379,18 @@ export default AdminPanel;
 
 //     const handleEditRecord = async (id) => {
 //         try {
-//             const response = await fetch(`http://localhost:3000/api/companies/${id}`);
+//             const response = await fetch(`http://localhost:3000/api/${tables[tabIndex]}/${id}`);
 //             const data = await response.json();
-//             console.log('Editing record data:', data); // Log data for debugging
 //             setFormData({
 //                 name: data.name,
-//                 accounts: data.accounts.map(account => ({
+//                 email: data.email,
+//                 phone: data.phone,
+//                 accounts: data.accounts ? data.accounts.map(account => ({
 //                     bankId: account.bank_id,
 //                     currencyId: account.currency_id,
 //                     accountNumber: account.account_number,
 //                     balance: account.balance
-//                 }))
+//                 })) : []
 //             });
 //             setIsEdit(true);
 //             setEditId(id);
@@ -388,10 +401,10 @@ export default AdminPanel;
 //     };
 
 //     const handleSave = async (formData, isEdit) => {
-//         const url = isEdit ? `http://localhost:3000/api/companies/${editId}` : 'http://localhost:3000/api/companies';
+//         const url = isEdit ? `http://localhost:3000/api/${tables[tabIndex]}/${editId}` : `http://localhost:3000/api/${tables[tabIndex]}`;
 //         const method = isEdit ? 'PUT' : 'POST';
 
-//         console.log(`URL: ${url}, Method: ${method}`, formData, isEdit); // Log URL, method, formData, and isEdit for debugging
+//         console.log(`URL: ${url}, Method: ${method}`);
 
 //         try {
 //             const response = await fetch(url, {
@@ -409,7 +422,7 @@ export default AdminPanel;
 //             fetchData();
 //             handleClose();
 //         } catch (err) {
-//             console.error(`Error ${isEdit ? 'editing' : 'adding'} record in companies:`, err);
+//             console.error(`Error ${isEdit ? 'editing' : 'adding'} record in ${tables[tabIndex]}:`, err);
 //         }
 //     };
 
@@ -489,6 +502,15 @@ export default AdminPanel;
 //                     isEdit={isEdit}
 //                 />
 //             )}
+//             {tabIndex === 2 && (
+//                 <ContractorFormModal
+//                     open={open}
+//                     handleClose={handleClose}
+//                     handleSave={handleSave}
+//                     initialData={isEdit ? formData : { name: '', email: '', phone: '' }}
+//                     isEdit={isEdit}
+//                 />
+//             )}
 //             {tabIndex === 3 && (
 //                 <BankFormModal
 //                     open={open}
@@ -505,14 +527,6 @@ export default AdminPanel;
 //                     initialData={isEdit ? formData : { name: '', short_name: '' }}
 //                 />
 //             )}
-//             {tabIndex === 2 && (
-//                 <ContractorFormModal
-//                     open={open}
-//                     handleClose={handleClose}
-//                     handleSave={handleSave}
-//                     initialData={isEdit ? formData : { name: '' }}
-//                 />
-//             )}
 //             {tabIndex === 6 && (
 //                 <TransactionFormModal
 //                     open={open}
@@ -521,6 +535,7 @@ export default AdminPanel;
 //                     initialData={isEdit ? formData : { description: '', amount: '', companyId: '', accountId: '' }}
 //                     companies={companies}
 //                     accounts={accounts}
+//                     isEdit={isEdit}
 //                 />
 //             )}
 //             <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
@@ -544,3 +559,4 @@ export default AdminPanel;
 // };
 
 // export default AdminPanel;
+
