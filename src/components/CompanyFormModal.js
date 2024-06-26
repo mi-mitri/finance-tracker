@@ -61,7 +61,7 @@ const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, c
                     balance: parseFloat(account.balance)
                 }))
             };
-            console.log('Sending formatted data:', formattedData); // Логирование данных перед отправкой
+            console.log('Sending formatted data:', formattedData, isEdit); // Log data for debugging
             handleSave(formattedData, isEdit);
         }
     };

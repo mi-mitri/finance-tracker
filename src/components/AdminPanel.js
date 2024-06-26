@@ -25,11 +25,14 @@ const AdminPanel = () => {
 
     const tables = useMemo(() => ['companies', 'projects', 'contractors', 'banks', 'currencies', 'account', 'transactions'], []);
 
-    const fetchData = useCallback(() => {
-        fetch(`http://localhost:3000/api/${tables[tabIndex]}`)
-            .then(response => response.json())
-            .then(data => setData(data))
-            .catch(err => console.error(`Error fetching ${tables[tabIndex]}:`, err));
+    const fetchData = useCallback(async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/${tables[tabIndex]}`);
+            const data = await response.json();
+            setData(data);
+        } catch (err) {
+            console.error(`Error fetching ${tables[tabIndex]} data:`, err);
+        }
     }, [tabIndex, tables]);
 
     useEffect(() => {
@@ -78,80 +81,61 @@ const AdminPanel = () => {
         setTabIndex(newValue);
     };
 
-    const handleOpen = () => {
-        setIsEdit(false);
-        setFormData({});
-        setOpen(true);
-    };
-
+    const handleOpen = () => setOpen(true);
     const handleClose = () => {
         setOpen(false);
-        setFormData({});
+        setFormData({ name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
         setIsEdit(false);
         setEditId(null);
     };
 
-    const handleSave = (formData, isEdit) => {
-        const url = isEdit ? `http://localhost:3000/api/companies/${editId}` : `http://localhost:3000/api/companies`;
+    const handleEditRecord = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/companies/${id}`);
+            const data = await response.json();
+            console.log('Editing record data:', data); // Log data for debugging
+            setFormData({
+                name: data.name,
+                accounts: data.accounts.map(account => ({
+                    bankId: account.bank_id,
+                    currencyId: account.currency_id,
+                    accountNumber: account.account_number,
+                    balance: account.balance
+                }))
+            });
+            setIsEdit(true);
+            setEditId(id);
+            handleOpen();
+        } catch (err) {
+            console.error('Error fetching record data:', err);
+        }
+    };
+
+    const handleSave = async (formData, isEdit) => {
+        const url = isEdit ? `http://localhost:3000/api/companies/${editId}` : 'http://localhost:3000/api/companies';
         const method = isEdit ? 'PUT' : 'POST';
-    
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => {
+
+        console.log(`URL: ${url}, Method: ${method}`, formData, isEdit); // Log URL, method, formData, and isEdit for debugging
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return response.json();
-        })
-        .then(() => {
+
             fetchData();
             handleClose();
-        })
-        .catch(err => console.error(`Error ${isEdit ? 'editing' : 'adding'} record in companies:`, err));
-    };    
-    
-    
-
-    const handleEditRecord = (id) => {
-        if (typeof id !== 'string' && typeof id !== 'number') {
-            console.error('Invalid ID:', id);
-            return;
+        } catch (err) {
+            console.error(`Error ${isEdit ? 'editing' : 'adding'} record in companies:`, err);
         }
-    
-        const url = `http://localhost:3000/api/companies/${id}`;
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Editing record data:', data);
-                setEditId(id);
-                const initialData = {
-                    name: data.name,
-                    accounts: data.accounts ? data.accounts.map(account => ({
-                        bankId: account.bank_id,
-                        currencyId: account.currency_id,
-                        accountNumber: account.account_number,
-                        balance: account.balance
-                    })) : []
-                };
-                setFormData(initialData);
-                setIsEdit(true);
-                setTimeout(() => {
-                    handleOpen();
-                }, 0);
-            })
-            .catch(err => console.error('Error fetching record data:', err));
     };
-    
 
     const handleDeleteRecord = (id) => {
         setDeleteId(id);
@@ -226,6 +210,7 @@ const AdminPanel = () => {
                     initialData={isEdit ? formData : { name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] }}
                     banks={banks}
                     currencies={currencies}
+                    isEdit={isEdit}
                 />
             )}
             {tabIndex === 3 && (
