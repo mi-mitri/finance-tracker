@@ -1,99 +1,132 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, TextField, Modal, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import modalStyles from './styles/Modal.module.scss';
+import { Box, Button, TextField, Select, MenuItem, InputLabel, FormControl, Modal, Typography, Radio, RadioGroup, FormControlLabel } from '@mui/material';
+import modalStyles from './styles/TransactionFormModal.module.scss';
 
 const TransactionFormModal = ({ open, handleClose, handleSave, initialData, companies, accounts }) => {
-    const [formData, setFormData] = useState(initialData || { description: '', amount: '', companyId: '', accountId: '' });
-    const [errors, setErrors] = useState({});
+    const [formData, setFormData] = useState(initialData);
+    const [transactionType, setTransactionType] = useState('income');
 
     useEffect(() => {
-        setFormData(initialData || { description: '', amount: '', companyId: '', accountId: '' });
+        setFormData(initialData);
     }, [initialData]);
 
-    const handleInputChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.description) newErrors.description = 'Описание обязательно';
-        if (!formData.amount) newErrors.amount = 'Сумма обязательна';
-        if (!formData.companyId) newErrors.companyId = 'Компания обязательна';
-        if (!formData.accountId) newErrors.accountId = 'Счет обязателен';
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    const handleTypeChange = (e) => {
+        setTransactionType(e.target.value);
     };
 
-    const handleSaveClick = () => {
-        if (validateForm()) {
-            handleSave(formData);
-        }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const adjustedFormData = {
+            ...formData,
+            amount: transactionType === 'expense' ? -Math.abs(formData.amount) : Math.abs(formData.amount)
+        };
+        handleSave(adjustedFormData);
     };
 
     return (
         <Modal open={open} onClose={handleClose}>
             <Box className={modalStyles.modalBox}>
                 <Typography variant="h6" component="h2">
-                    {initialData ? 'Редактировать транзакцию' : 'Добавить новую транзакцию'}
+                    {formData.id ? 'Редактировать Транзакцию' : 'Добавить Транзакцию'}
                 </Typography>
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Описание"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    error={!!errors.description}
-                    helperText={errors.description}
-                />
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Сумма"
-                    name="amount"
-                    type="number"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    error={!!errors.amount}
-                    helperText={errors.amount}
-                />
-                <FormControl fullWidth margin="normal" error={!!errors.companyId}>
-                    <InputLabel id="company-label">Выберите компанию</InputLabel>
-                    <Select
-                        labelId="company-label"
-                        name="companyId"
-                        value={formData.companyId}
-                        onChange={handleInputChange}
-                    >
-                        {companies.map(company => (
-                            <MenuItem key={company.id} value={company.id}>{company.name}</MenuItem>
-                        ))}
-                    </Select>
-                    {errors.companyId && <Typography color="error">{errors.companyId}</Typography>}
-                </FormControl>
-                <FormControl fullWidth margin="normal" error={!!errors.accountId}>
-                    <InputLabel id="account-label">Выберите счет</InputLabel>
-                    <Select
-                        labelId="account-label"
-                        name="accountId"
-                        value={formData.accountId}
-                        onChange={handleInputChange}
-                    >
-                        {accounts.map(account => (
-                            <MenuItem key={account.id} value={account.id}>{account.accountNumber}</MenuItem>
-                        ))}
-                    </Select>
-                    {errors.accountId && <Typography color="error">{errors.accountId}</Typography>}
-                </FormControl>
-                <Box className={modalStyles.buttonContainer}>
-                    <Button variant="contained" color="primary" onClick={handleSaveClick}>
-                        Сохранить
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={handleClose}>
-                        Отмена
-                    </Button>
-                </Box>
+                <form onSubmit={handleSubmit}>
+                    <FormControl component="fieldset">
+                        <RadioGroup row name="transactionType" value={transactionType} onChange={handleTypeChange}>
+                            <FormControlLabel value="income" control={<Radio />} label="Приход" />
+                            <FormControlLabel value="expense" control={<Radio />} label="Расход" />
+                        </RadioGroup>
+                    </FormControl>
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="company-label">Компания</InputLabel>
+                        <Select
+                            labelId="company-label"
+                            name="companyId"
+                            value={formData.companyId || ''}
+                            onChange={handleChange}
+                        >
+                            {companies.map((company) => (
+                                <MenuItem key={company.id} value={company.id}>
+                                    {company.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="account-label">Аккаунт</InputLabel>
+                        <Select
+                            labelId="account-label"
+                            name="accountId"
+                            value={formData.accountId || ''}
+                            onChange={handleChange}
+                        >
+                            {accounts.map((account) => (
+                                <MenuItem key={account.id} value={account.id}>
+                                    {account.accountNumber}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        name="projectId"
+                        label="Проект"
+                        value={formData.projectId || ''}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        name="contractorId"
+                        label="Контрагент"
+                        value={formData.contractorId || ''}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        name="amount"
+                        label="Сумма"
+                        value={formData.amount || ''}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        name="date"
+                        label="Дата транзакции"
+                        type="date"
+                        value={formData.date || ''}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        name="notes"
+                        label="Примечания"
+                        value={formData.notes || ''}
+                        onChange={handleChange}
+                    />
+                    <Box className={modalStyles.buttonContainer}>
+                        <Button variant="contained" color="primary" type="submit">
+                            Провести транзакцию
+                        </Button>
+                        <Button variant="contained" onClick={handleClose}>
+                            Отмена
+                        </Button>
+                    </Box>
+                </form>
             </Box>
         </Modal>
     );
