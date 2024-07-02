@@ -4,13 +4,12 @@ import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import modalStyles from './styles/Modal.module.scss';
 
-const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, currencies, isEdit }) => {
-    const [formData, setFormData] = useState({ name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
+const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks = [], currencies = [] }) => {
+    const [formData, setFormData] = useState(initialData || { name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (initialData && initialData.name) {
-            console.log('Received initialData:', initialData);
+        if (initialData) {
             setFormData(initialData);
         }
     }, [initialData]);
@@ -61,8 +60,7 @@ const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, c
                     balance: parseFloat(account.balance)
                 }))
             };
-            console.log('Sending formatted data:', formattedData, isEdit); // Log data for debugging
-            handleSave(formattedData, isEdit);
+            handleSave(formattedData);
         }
     };
 
@@ -70,7 +68,7 @@ const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, c
         <Modal open={open} onClose={handleClose}>
             <Box className={modalStyles.modalBox}>
                 <Typography variant="h6" component="h2">
-                    {isEdit ? 'Редактировать компанию' : 'Добавить новую компанию'}
+                    {initialData ? 'Редактировать компанию' : 'Добавить новую компанию'}
                 </Typography>
                 <TextField
                     fullWidth
@@ -82,7 +80,7 @@ const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, c
                     error={!!errors.name}
                     helperText={errors.name}
                 />
-                {formData.accounts && formData.accounts.map((account, index) => (
+                {formData.accounts.map((account, index) => (
                     <Box key={index} className={modalStyles.accountBox}>
                         <Typography variant="subtitle1" component="h3">
                             Банковские данные {index + 1}
@@ -169,12 +167,13 @@ export default CompanyFormModal;
 // import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 // import modalStyles from './styles/Modal.module.scss';
 
-// const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, currencies }) => {
-//     const [formData, setFormData] = useState(initialData || { name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
+// const CompanyFormModal = ({ open, handleClose, handleSave, initialData, banks, currencies, isEdit }) => {
+//     const [formData, setFormData] = useState({ name: '', accounts: [{ bankId: '', currencyId: '', accountNumber: '', balance: '' }] });
 //     const [errors, setErrors] = useState({});
 
 //     useEffect(() => {
-//         if (initialData) {
+//         if (initialData && initialData.name) {
+//             console.log('Received initialData:', initialData);
 //             setFormData(initialData);
 //         }
 //     }, [initialData]);
@@ -225,16 +224,16 @@ export default CompanyFormModal;
 //                     balance: parseFloat(account.balance)
 //                 }))
 //             };
-//             console.log('Sending formatted data:', formattedData); // Логирование данных перед отправкой
-//             handleSave(formattedData);
+//             console.log('Sending formatted data:', formattedData, isEdit); // Log data for debugging
+//             handleSave(formattedData, isEdit);
 //         }
 //     };
-    
+
 //     return (
 //         <Modal open={open} onClose={handleClose}>
 //             <Box className={modalStyles.modalBox}>
 //                 <Typography variant="h6" component="h2">
-//                     {initialData ? 'Редактировать компанию' : 'Добавить новую компанию'}
+//                     {isEdit ? 'Редактировать компанию' : 'Добавить новую компанию'}
 //                 </Typography>
 //                 <TextField
 //                     fullWidth
@@ -246,7 +245,7 @@ export default CompanyFormModal;
 //                     error={!!errors.name}
 //                     helperText={errors.name}
 //                 />
-//                 {formData.accounts.map((account, index) => (
+//                 {formData.accounts && formData.accounts.map((account, index) => (
 //                     <Box key={index} className={modalStyles.accountBox}>
 //                         <Typography variant="subtitle1" component="h3">
 //                             Банковские данные {index + 1}
@@ -324,3 +323,5 @@ export default CompanyFormModal;
 // };
 
 // export default CompanyFormModal;
+
+
